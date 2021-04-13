@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Temporada extends Model
 {
+    protected $fillable = ['id', 'numero', 'serie_id'];
+    public $timestamps = false;
+    public $incrementing = false;
     public function episodios()
     {
         return $this->hasMany(Episodio::class);
@@ -15,5 +18,4 @@ class Temporada extends Model
     {
         $this->belongsTo(Serie::class);
     }
-    public $incrementing = false;
 }
