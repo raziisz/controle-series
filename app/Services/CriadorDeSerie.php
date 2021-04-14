@@ -5,6 +5,7 @@ namespace App\Services;
 
 
 use App\Serie;
+use Illuminate\Support\Facades\DB;
 use Webpatser\Uuid\Uuid;
 
 class CriadorDeSerie
@@ -15,20 +16,23 @@ class CriadorDeSerie
         int $epPorTemporada
     ): Serie
     {
+        $serie = null;
+        DB::transaction(function () use (&$serie, $nomeSerie, $qtdTemporadas, $epPorTemporada) {
+            $id = Uuid::generate()->string;
+            $serie = Serie::create([
+                'nome' => $nomeSerie,
+                'id' => $id
+            ]);
 
-        $id = Uuid::generate()->string;
-        $serie = Serie::create([
-            'nome' => $nomeSerie,
-            'id' => $id
-        ]);
+            for ($i = 1; $i <= $qtdTemporadas; $i++) {
+                $temporada = $serie->temporadas()->create([ 'id' => Uuid::generate()->string, 'numero' => $i, 'serie_id' => $serie->id]);
 
-        for ($i = 1; $i <= $qtdTemporadas; $i++) {
-            $temporada = $serie->temporadas()->create([ 'id' => Uuid::generate()->string, 'numero' => $i, 'serie_id' => $serie->id]);
-
-            for ($j = 1; $j <= $epPorTemporada; $j++) {
-                $temporada->episodios()->create(['id' => Uuid::generate()->string, 'numero' => $j, 'temporada_id' => $temporada->id]);
+                for ($j = 1; $j <= $epPorTemporada; $j++) {
+                    $temporada->episodios()->create(['id' => Uuid::generate()->string, 'numero' => $j, 'temporada_id' => $temporada->id]);
+                }
             }
-        }
+        }) ;
+
 
         return $serie;
     }
