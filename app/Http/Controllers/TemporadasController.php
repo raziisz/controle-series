@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Serie;
+use App\Temporada;
 use Illuminate\Http\Request;
 
 class TemporadasController extends Controller
@@ -11,7 +12,7 @@ class TemporadasController extends Controller
     {
 
         $serie = Serie::find($serieId);
-        $temporadas =  $serie->temporadas;
+        $temporadas =  Temporada::query()->where('serie_id', $serieId)->get();
 
         return view('temporadas.index', compact('temporadas', 'serie'));
     }

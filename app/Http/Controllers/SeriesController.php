@@ -4,19 +4,25 @@
 namespace App\Http\Controllers;
 
 
+use App\Episodio;
 use App\Http\Requests\SeriesFormRequest;
 use App\Serie;
+use App\Services\CriadorDeSerie;
+use App\Services\RemovedorDeSerie;
+use App\Temporada;
 use Illuminate\Http\Request;
-use Webpatser\Uuid\Uuid;
+
 
 class SeriesController extends Controller
 {
-    public function index (Request $request) {
+    public function index(Request $request)
+    {
 
         $series = Serie::query()->orderBy('nome')->get();
+
         $mensagem = $request->session()->get('mensagem');
 
-       return view('series.index', compact('series', 'mensagem'));
+        return view('series.index', compact('series', 'mensagem'));
     }
 
     public function create()
@@ -24,24 +30,13 @@ class SeriesController extends Controller
         return view('series.create');
     }
 
-    public function store(SeriesFormRequest $request)
+    public function store(SeriesFormRequest $request, CriadorDeSerie $criadorDeSerie)
     {
-        $nome = $request->nome;
-
-        $id = Uuid::generate()->string;
-        $serie = Serie::create([
-            'nome' => $nome,
-            'id' => $id
-        ]);
-
-        $qtdTemporadas = $request->qtd_temporadas;
-        for ($i = 1; $i < $qtdTemporadas; $i++) {
-            $temporada = $serie->temporadas()->create([ 'id' => Uuid::generate()->string, 'numero' => $i, 'serie_id' => $serie->id]);
-
-            for ($j = 1; $j <= $request->ep_por_temporada; $j++) {
-                $temporada->episodios()->create(['id' => Uuid::generate()->string, 'numero' => $j, 'temporada_id' => $temporada->id]);
-            }
-        }
+        $serie = $criadorDeSerie->criarSerie(
+            $request->nome,
+            $request->qtd_temporadas,
+            $request->ep_por_temporada
+        );
         $request
             ->session()
             ->flash('mensagem', "Série {$serie->id} e suas temporadas e episódios criados com sucesso {$serie->nome}");
@@ -49,13 +44,14 @@ class SeriesController extends Controller
         return redirect()->route('listar_series');
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request, RemovedorDeSerie $removedorDeSerie)
     {
-       Serie::destroy($request->id);
+
+        $nomeSerie = $removedorDeSerie->removerSerie($request->id);
 
         $request
             ->session()
-            ->flash('mensagem', "Série foi removida com sucesso");
+            ->flash('mensagem', "Série $nomeSerie  removida com sucesso");
 
         return redirect()->route('listar_series');
     }
