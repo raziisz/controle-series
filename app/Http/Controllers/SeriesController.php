@@ -13,11 +13,16 @@ use App\Temporada;
 use Illuminate\Http\Request;
 
 
+
 class SeriesController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index(Request $request)
     {
-
         $series = Serie::query()->orderBy('nome')->get();
 
         $mensagem = $request->session()->get('mensagem');
@@ -54,5 +59,14 @@ class SeriesController extends Controller
             ->flash('mensagem', "Série $nomeSerie  removida com sucesso");
 
         return redirect()->route('listar_series');
+    }
+
+    public function editaNome(string $id , Request $request)
+    {
+        $novoNome = $request->nome;
+        $serie = Serie::find($id);
+        $serie->nome = $novoNome;
+        $serie->save();
+
     }
 }
