@@ -29,5 +29,19 @@ Route::get('/sair', function () {
 });
 
 Route::get('/visualizando-email', function() {
-    return new \App\Mail\NovaSerie();
+    return new \App\Mail\NovaSerie('Arrow', 5, 10);
+});
+
+Route::get('/enviando-email', function() {
+    $email = new \App\Mail\NovaSerie('Arrow', 5, 10);
+
+    $email->subject = 'Nova Série Adicionada!';
+
+    $user = (object)[
+        'email' => 'felipe@teste.com',
+        'name' => 'Diogo'
+    ];
+    \Illuminate\Support\Facades\Mail::to($user)->send($email);
+
+    return 'Email enviado!';
 });
