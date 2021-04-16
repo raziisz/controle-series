@@ -13,7 +13,8 @@ class CriadorDeSerie
     public function criarSerie(
         string $nomeSerie,
         int $qtdTemporadas,
-        int $epPorTemporada
+        int $epPorTemporada,
+        ?string $capa
     ): Serie
     {
         DB::beginTransaction();
@@ -21,7 +22,8 @@ class CriadorDeSerie
 
         $serie = Serie::create([
             'nome' => $nomeSerie,
-            'id' => $id
+            'id' => $id,
+            'capa' => $capa
         ]);
         $this->criarTemporadas($qtdTemporadas, $serie, $epPorTemporada);
 
