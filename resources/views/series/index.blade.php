@@ -13,6 +13,9 @@
     <ul class="list-group">
         @foreach ($series as $serie)
             <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <img src="{{$serie->capa_url}}" alt="Sem imagem" class="img-thumbnail" height="100px" width="100px">
+                </div>
                 <span id="nome-series-{{$serie->id}}">{{$serie->nome}}</span>
 
                 <div class="input-group w-50" hidden id="input-nome-serie-{{$serie->id}}">
