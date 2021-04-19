@@ -4,7 +4,7 @@
 namespace App\Services;
 
 
-use App\{Episodio, Temporada, Serie};
+use App\{Episodio, Events\SerieApagada, Temporada, Serie};
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,13 +16,14 @@ class RemovedorDeSerie
         $nomeSerie = '';
         DB::transaction(function () use ($serieId, &$nomeSerie) {
             $serie = Serie::find($serieId);
+            $serieObj = (object) $serie->toArray();
+
             $nomeSerie = $serie->nome;
             $this->removerTemporadas($serie);
             $serie->delete();
 
-            if ($serie->capa) {
-                Storage::delete($serie->capa);
-            }
+            $evento = new SerieApagada($serieObj);
+            event($evento);
 
         });
 
